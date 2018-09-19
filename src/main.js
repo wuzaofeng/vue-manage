@@ -7,10 +7,13 @@ import router from './router'
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 import i18n from './i18n/i18n'
-
+import store from './store'
 import './element-variables.scss'
-Vue.use(ElementUI)
+import './iconfont' // 引入公共iconfont
 
+document.title = window.TITLE
+
+Vue.use(ElementUI)
 Vue.config.productionTip = false
 /* eslint-disable no-new */
 new Vue({
@@ -18,5 +21,6 @@ new Vue({
   router,
   components: { App },
   template: '<App/>',
-  i18n
+  i18n,
+  store
 })
