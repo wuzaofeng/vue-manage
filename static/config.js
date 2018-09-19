@@ -7,8 +7,8 @@ var NAVS = [{
   path: '/'
 }, {
   index: '2',
-  title: '新闻头条',
-  path: '/news'
+  title: 'Cnode',
+  path: '/cnode'
 }, {
   index: '3',
   title: '天气预报',

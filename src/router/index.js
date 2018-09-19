@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Home from '@/views/Home'
-import News from '@/views/News'
+import Cnode from '@/views/Cnode'
 
 Vue.use(Router)
 
@@ -18,9 +18,9 @@ export default new Router({
       component: Home
     },
     {
-      path: '/news',
-      name: 'News',
-      component: News
+      path: '/cnode',
+      name: 'Cnode',
+      component: Cnode
     }
   ]
 })

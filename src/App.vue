@@ -9,7 +9,7 @@
           <Head />
         </el-header>
         <Tabs />
-        <el-main class="main">
+        <el-main>
           <router-view />
         </el-main>
         <el-footer class="footer">
