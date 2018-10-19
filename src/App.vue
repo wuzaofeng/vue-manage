@@ -58,4 +58,9 @@ export default {
 .aside {
   transition: all .3s;
 }
+.breadcrumb {
+  background: $white;
+  padding: 15px;
+  box-shadow: 1px 0px 2px $border-two;
+}
 </style>

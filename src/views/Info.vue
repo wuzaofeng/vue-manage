@@ -1,42 +1,19 @@
 <template>
-  <div class="cnode" v-loading="loading">
-    <el-form :inline="true" :model="search" class="search">
-      <el-form-item label="主题分类">
-        <el-select
-          v-model="search.tabValue"
-          placeholder="请选择主题分类"
-        >
-          <el-option
-            v-for="item in search.tabs"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value">
-          </el-option>
-        </el-select>
-      </el-form-item>
-      <el-form-item label="显示页数">
-        <el-select
-          v-model="search.limitValue"
-          placeholder="请选择显示页数"
-        >
-          <el-option
-            v-for="item in search.limits"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value">
-          </el-option>
-        </el-select>
-      </el-form-item>
-      <el-form-item>
-        <el-button type="primary" @click="onSubmit">查询</el-button>
-      </el-form-item>
-    </el-form>
+  <div class="info-wrapper" v-loading="loading">
+    <div class="user">
+      <img v-lazy="avatarurl" :alt="loginname">
+      <div class="text">
+        <span>{{loginname}}</span>
+        <span>github {{githubUsername}}</span> 
+        <span>{{score}} 积分</span>
+        <span>注册于 {{creatTime}}</span>
+      </div>
+    </div>
     <div class="table-wrap">
       <el-table
         class="table"
-        :data="tableData"
+        :data="replies"
         border
-        height="100%"
       >
         <el-table-column
           label="作者"
@@ -101,13 +78,6 @@
         </el-table-column>
       </el-table>
     </div>
-    <div class="pagination">
-      <el-pagination
-        layout="prev, pager, next"
-        @current-change="changeHandle"
-        :total="50">
-      </el-pagination>
-    </div>
   </div>
 </template>
 
@@ -115,19 +85,18 @@
 import CNodeApi from '@/server/cnode/cnode-api'
 import { formatMsgTime } from '@/assets/js/common'
 const tabs = [
-  {value: 'all', label: '全部'},
   {value: 'ask', label: '分享'},
   {value: 'share', label: '问答'},
   {value: 'job', label: '招聘'},
-  {value: 'good', label: '精华'}
-]
-const limits = [
-  {value: '10', label: '10条/页'},
-  {value: '20', label: '20条/页'},
-  {value: '30', label: '30条/页'}
+  {value: 'dev', label: '测试'}
 ]
 export default {
-  name: 'Cnode',
+  name: 'Info',
+  computed: {
+    creatTime () {
+      return formatMsgTime(this.createat)
+    }
+  },
   filters: {
     create_at (value) {
       const time = new Date(value || '')
@@ -143,44 +112,31 @@ export default {
   },
   data () {
     return {
-      search: {
-        tabs,
-        tabValue: '',
-        limits,
-        limitValue: ''
-      },
-      page: 1,
-      tableData: [],
-      loading: true
+      loading: false,
+      createat: '',
+      avatarurl: '',
+      githubUsername: '',
+      loginname: '',
+      replies: [],
+      topics: [],
+      score: 0
     }
   },
   mounted () {
-    this.getTopics()
+    this.getUserInfo()
   },
   methods: {
-    onSubmit () {
-      this.getTopics()
-    },
-    changeHandle (page) {
-      this.page = page
-      this.getTopics()
-    },
-    handleDetails (index, row) {
-      const { id } = row
-      this.$router.push({name: 'Cnode-Details', query: { id }})
-    },
-    getTopics () {
-      const { search: { tabValue, limitValue }, page } = this
-      const params = {
-        page,
-        tab: tabValue,
-        limit: limitValue,
-        mdrender: false
-      }
-      this.loading = true
-      CNodeApi.getTopics(params).then(res => {
-        this.tableData = res.data
-        this.loading = false
+    getUserInfo () {
+      const { username } = this.$route.params
+      CNodeApi.userInfo(username).then((res) => {
+        const { avatar_url: avatarurl, create_at: createat, githubUsername, loginname, recent_replies: replies, recent_topics: topics, score } = res.data
+        this.avatarurl = avatarurl
+        this.createat = createat
+        this.githubUsername = githubUsername
+        this.loginname = loginname
+        this.replies = replies
+        this.topics = topics
+        this.score = score
       })
     }
   }
@@ -189,85 +145,36 @@ export default {
 
 <style lang="scss" scoped>
 @import '../scss/var';
-.cnode {
+.info-wrapper {
   display: flex;
   flex-direction: column;
   height: 100%;
   background: $white;
   border-radius: 5px;
+  overflow-y: auto;
+  padding: 22px 45px 22px 22px;
+  box-sizing: border-box;
+  overflow-y: auto;
 }
-.search {
-  padding-top: 22px;
-  padding-left: 35px;
-}
-.table-wrap {
-  flex: 1;
-  margin: 0 20px;
-}
-.table {
-  width: 100%;
-}
-.pagination {
-  text-align: center;
-  padding: 10px;
-}
-
-.box {
+.user {
   display: flex;
   align-items: center;
-}
-.img {
-  width: 45px;
-  height: 45px;
-  border-radius: 3px;
-  margin-right: 10px;
-}
-.info {
-  flex: 1;
-  .username {
-    color: $color-nomal;
-  }
-}
-.title {
-  width: 100%;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  color: #606266;
-}
-.counts {
-  text-align: center;
+  justify-content: center;
+  flex-direction: column;
 
-  .replies {
-    color: $color-primary;
-    font-style: normal;
+  img {
+    border-radius: 50%;
+    margin-bottom: 5px;
+    width: 120px;
+    height: 120px;
   }
-  .seperator {
-    margin: 0 -3px;
-    font-size: 10px;
-    font-style: normal;
-  }
-  .visits {
-    font-size: 10px;
+
+  span {
+    font-size: 12px;
     color: $color-minior;
-    font-style: normal;
   }
-}
-
-.put_top {
-  background: $put-top-bg;
-  padding: 2px 4px;
-  border-radius: 3px;
-  color: $white;
-  font-size: 12px;
-}
-.topiclist_tab {
-  background-color: $topiclist-tab-bg;
-  color: $color-minior;
-  padding: 2px 3px;
-  border-radius: 3px;
-  font-size: 12px;
-  text-align: center;
-  margin-right: 4px;
+  span::before {
+    content: "\2022";
+  }
 }
 </style>

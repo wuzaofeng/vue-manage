@@ -32,8 +32,9 @@
         </template>
         <el-menu-item-group>
           <el-menu-item class="item" index="cnode-login" v-if="!cnode_login">登录cnode</el-menu-item>
+          <!-- <el-menu-item class="item" index="cnode-info" v-if="cnode_login">我的信息</el-menu-item> -->
           <el-menu-item class="item" index="cnode-list">主题列表</el-menu-item>
-          <el-menu-item class="item" index="cnode-add">新建主题</el-menu-item>
+          <el-menu-item class="item" index="cnode-add"  v-if="cnode_login">新建主题</el-menu-item>
           <el-menu-item class="item" index="cnode-exit" v-if="cnode_login">退出登录</el-menu-item>
         </el-menu-item-group>
       </el-submenu>
@@ -64,18 +65,6 @@ export default {
   computed: {
     ...mapState(['isCollapse', 'cnode_login'])
   },
-  mounted () {
-    fetch('https://cnodejs.org/api/v1/accesstoken', {
-      method: 'post',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        accesstoken: '7d1c022b-3b91-4c4c-9994-7d17b3efc967'
-      })
-    })
-  },
   methods: {
     handleSelect (index, indexPath) {
       const path = indexPath[indexPath.length - 1]
@@ -90,7 +79,6 @@ export default {
       if (path === 'cnode-login') {
         this.loginCnode()
       }
-
       if (path === 'cnode-exit') {
         this[CNODE_EXIT]()
       }

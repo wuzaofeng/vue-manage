@@ -4,6 +4,7 @@ import Home from '@/views/Home'
 import Cnode from '@/views/Cnode'
 import CnodeDetails from '@/views/Details'
 import CnodeAdd from '@/views/Add'
+import CnodeInfo from '@/views/Info'
 Vue.use(Router)
 
 export default new Router({
@@ -32,6 +33,11 @@ export default new Router({
       path: '/cnode-add',
       name: 'Cnode-Add',
       component: CnodeAdd
+    },
+    {
+      path: '/cnode-info/:username',
+      name: 'Cnode-Info',
+      component: CnodeInfo
     }
   ]
 })

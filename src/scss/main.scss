@@ -85,3 +85,18 @@ a {
 .markdown-text a{
   color:#08c
 }
+
+.ql-container.ql-snow,
+.ql-toolbar.ql-snow {
+  border: 0
+}
+.ql-toolbar.ql-snow {
+  border-bottom: 1px solid $border-default
+}
+.ql-formats {
+  line-height: 150%;
+}
+.quill-editor {
+  border: 1px solid $border-default;
+  border-radius: 4px
+}

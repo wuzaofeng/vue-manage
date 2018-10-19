@@ -7,7 +7,7 @@ export default class CNodeApi {
   static METHOD = {
     POST: 'post'
   }
-  // 主题首页
+  // 主题列表
   static getTopics (data) {
     return Axios.fetch({
       url: `${CNodeApi.BASE_URL}/${TYPES.TOPICS}`,
@@ -16,19 +16,61 @@ export default class CNodeApi {
   }
 
   // 主题详情
-  static getDetails (id) {
+  static getDetails ({id, data = {}}) {
     return Axios.fetch({
-      url: `${CNodeApi.BASE_URL}/${TYPES.TOPIC}/${id}`
+      url: `${CNodeApi.BASE_URL}/${TYPES.TOPIC}/${id}`,
+      params: data
+    })
+  }
+
+  // 新建主题
+  static addTopics (data) {
+    return Axios.fetch({
+      url: `${CNodeApi.BASE_URL}/${TYPES.TOPICS}`,
+      data,
+      method: CNodeApi.METHOD.POST
+    })
+  }
+
+  // 编辑主题
+  static updateTopics (data) {
+    return Axios.fetch({
+      url: `${CNodeApi.BASE_URL}/${TYPES.TOPICS}/update`,
+      data
     })
   }
 
   // 验证 accessToken 的正确性
   static accessToken (data) {
-    console.log(data)
     return Axios.fetch({
       url: `${CNodeApi.BASE_URL}/${TYPES.ACCESS_TOKEN}`,
       data,
       method: CNodeApi.METHOD.POST
+    })
+  }
+
+  // 收藏主题
+  static collect (data) {
+    return Axios.fetch({
+      url: `${CNodeApi.BASE_URL}/${TYPES.COLLECT_ADD}`,
+      data,
+      method: CNodeApi.METHOD.POST
+    })
+  }
+
+  // 取消主题
+  static delCollect (data) {
+    return Axios.fetch({
+      url: `${CNodeApi.BASE_URL}/${TYPES.COLLECT_DELETE}`,
+      data,
+      method: CNodeApi.METHOD.POST
+    })
+  }
+
+  // 用户信息
+  static userInfo (loginname) {
+    return Axios.fetch({
+      url: `${CNodeApi.BASE_URL}/${TYPES.USER_INFO}/${loginname}`
     })
   }
 }
