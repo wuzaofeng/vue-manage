@@ -1,58 +1,138 @@
 <template>
   <div class="side">
     <div class="brand">
-      <span>vueManage Pro</span>
+      <span v-if="!isCollapse">
+        <svg class="icon">
+          <use xlink:href="#icon-logo"></use>
+        </svg>
+        vueManage Pro
+      </span>
+      <svg v-else class="icon">
+        <use xlink:href="#icon-logo"></use>
+      </svg>
     </div>
     <el-menu
-      :default-active="currentTab"
+      :default-active="activeIndex"
       class="side-menu"
       @select="handleSelect"
       :collapse="isCollapse"
       >
-      <el-menu-item index="1">
+      <el-menu-item index="home">
         <svg class="icon">
           <use xlink:href="#icon-home"></use>
         </svg>
         <span slot="title">主页</span>
       </el-menu-item>
-      <el-menu-item index="2">
-        <i class="el-icon-location"></i>
-        <span slot="title">新闻头条</span>
-      </el-menu-item>
-      <el-menu-item index="3">
-        <i class="el-icon-location"></i>
-        <span slot="title">天气预报</span>
-      </el-menu-item>
+      <el-submenu index="cnode">
+        <template slot="title">
+        <svg class="icon">
+          <use xlink:href="#icon-cnode"></use>
+        </svg>
+        <span slot="title">Cnode</span>
+        </template>
+        <el-menu-item-group>
+          <el-menu-item class="item" index="cnode-login" v-if="!cnode_login">登录cnode</el-menu-item>
+          <el-menu-item class="item" index="cnode-list">主题列表</el-menu-item>
+          <el-menu-item class="item" index="cnode-add">新建主题</el-menu-item>
+          <el-menu-item class="item" index="cnode-exit" v-if="cnode_login">退出登录</el-menu-item>
+        </el-menu-item-group>
+      </el-submenu>
     </el-menu>
   </div>
 </template>
 
 <script>
-import { mapState, mapMutations } from 'vuex'
-import { ADD_TABS, SET_CURRENTTAB } from '@/store/mutations-types'
-const navs = window.NAVS // 获取navs
+import { mapState, mapActions, mapMutations } from 'vuex'
+import { CNODE_EXIT } from './../store/mutations-types'
+const ROUTERS = [{
+  name: 'Home',
+  index: 'home'
+}, {
+  name: 'Cnode',
+  index: 'cnode-list'
+}, {
+  name: 'Cnode-Add',
+  index: 'cnode-add'
+}]
 export default {
   name: 'Side',
   data () {
     return {
-      isCollapse: false
+      activeIndex: 'home'
     }
   },
   computed: {
-    ...mapState([
-      'currentTab'
-    ])
+    ...mapState(['isCollapse', 'cnode_login'])
   },
   mounted () {
+    fetch('https://cnodejs.org/api/v1/accesstoken', {
+      method: 'post',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        accesstoken: '7d1c022b-3b91-4c4c-9994-7d17b3efc967'
+      })
+    })
   },
   methods: {
-    ...mapMutations([ADD_TABS, SET_CURRENTTAB]),
-    handleSelect (key) {
-      const currentTab = navs.filter(item => item.index === key)[0]
-      this[ADD_TABS](currentTab)
-      this[SET_CURRENTTAB](key)
-      this.$router.push(currentTab.path)
-    }
+    handleSelect (index, indexPath) {
+      const path = indexPath[indexPath.length - 1]
+      const router = ROUTERS.find(e => {
+        return e.index === path
+      })
+      if (router) {
+        const { name } = router
+        this.$router.push({ name })
+      }
+
+      if (path === 'cnode-login') {
+        this.loginCnode()
+      }
+
+      if (path === 'cnode-exit') {
+        this[CNODE_EXIT]()
+      }
+    },
+    loginCnode () {
+      this.$prompt('请输入Access Token', '登录cnode', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        inputPattern: /\S/,
+        inputErrorMessage: '请输入Access Token',
+        inputValue: '7d1c022b-3b91-4c4c-9994-7d17b3efc967'
+      }).then(({ value: accesstoken }) => {
+        this.cnodeLogin(accesstoken)
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '取消cnode登录',
+          showClose: true
+        })
+      })
+    },
+    cnodeLogin (accesstoken) {
+      this.cnodeLoginAsync(accesstoken).then(() => {
+        this.$message({
+          type: 'info',
+          message: '登录成功',
+          showClose: true
+        })
+      }).catch(({data: {error_msg: err}}) => {
+        this.$message({
+          type: 'error',
+          message: err,
+          showClose: true
+        })
+      })
+    },
+    ...mapActions([
+      'cnodeLoginAsync'
+    ]),
+    ...mapMutations([
+      CNODE_EXIT
+    ])
   }
 }
 </script>
@@ -61,11 +141,11 @@ export default {
 @import '../scss/var';
 
 .side {
-  width: 250px;
   height: 100%;
   display: flex;
   flex-direction: column;
   background: $white;
+  border-right: 1px solid $side-border-color;
 }
 
 .brand {
@@ -74,7 +154,6 @@ export default {
   align-items: center;
   justify-items: center;
   text-align: center;
-  border-right: 1px solid $side-border-color;
   span {
     display: block;
     flex: 1;
@@ -82,17 +161,27 @@ export default {
     font-weight: 300;
     font-size: $font-size20;
   }
+  .icon {
+    width: 30px;
+    height: 30px;
+    margin: auto;
+    color: $color-primary;
+  }
 }
-
 .side-menu {
   flex: 1;
+  border-right: 0;
 }
 
 .icon {
   vertical-align: middle;
-  margin-right: 5px;
-  width: 24px;
+  margin-right: 10px;
+  width: 25px;
+  height: 25px;
   text-align: center;
   font-size: $font-size18;
+}
+.item {
+  text-indent: 15px;
 }
 </style>

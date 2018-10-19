@@ -77,13 +77,14 @@ axios.defaults.headers = {
 axios.defaults.timeout = 10000
 
 export default class Axios {
-  static fetch ({url, params = {}, headers, method = 'get'}) {
+  static fetch ({url, params = {}, data, headers, method = 'get'}) {
     return new Promise((resolve, reject) => {
       axios({
         method,
         url,
         params,
         headers,
+        data,
         cancelToken: new CancelToken(c => {
           cancel = c
         })

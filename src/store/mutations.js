@@ -1,24 +1,19 @@
 import {
-  ADD_TABS,
-  DELETE_TABS,
-  SET_CURRENTTAB
+  TOOGLE_NAV,
+  CNODE_LOGIN,
+  CNODE_EXIT
 } from './mutations-types'
 
 export default {
-  [ADD_TABS] (state, tab) {
-    const { tabs } = state
-    if (!tabs.some(item => item.index === tab.index)) {
-      tabs.push(tab)
-    }
-    state.tabs = tabs
+  [TOOGLE_NAV] (state) {
+    const { isCollapse } = state
+    state.isCollapse = !isCollapse
   },
-  [DELETE_TABS] (state, index) {
-    const { tabs, currentTab } = state
-    const filterTab = tabs.filter((item) => item.index !== index)
-    state.tabs = filterTab
-    state.currentTab = currentTab === index ? filterTab[filterTab.length - 1].index : currentTab
+  [CNODE_LOGIN] (state, accessToken) {
+    state.cnode_login = true
+    state.cnode_accessToken = accessToken
   },
-  [SET_CURRENTTAB] (state, index) {
-    state.currentTab = index
+  [CNODE_EXIT] (state) {
+    state.cnode_login = false
   }
 }

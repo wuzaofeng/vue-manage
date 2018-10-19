@@ -7,12 +7,9 @@ import mutations from './mutations'
 Vue.use(Vuex)
 
 const state = {
-  currentTab: '1', // 导航当前选中的值
-  tabs: [{
-    index: '1',
-    title: '主页',
-    path: '/'
-  }] // 导航tabs
+  isCollapse: false, // 是否折叠
+  cnode_login: false, // 是否登录cnode
+  cnode_accessToken: ''
 }
 
 export default new Vuex.Store({

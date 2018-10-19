@@ -1,16 +1,21 @@
 <template>
   <div id="app">
     <el-container class="container">
-      <el-aside width="250px">
+      <el-aside class="aside" :width="asideWidth">
         <Side />
       </el-aside>
-      <el-container>
+      <el-container class="container">
         <el-header class="header">
           <Head />
         </el-header>
-        <Tabs />
-        <el-main>
-          <router-view />
+        <el-main class="main-wrap">
+          <div class="main">
+            <router-view
+              keep-alive
+              transition="fade"
+              transition-mode='out-in'
+            />
+          </div>
         </el-main>
         <el-footer class="footer">
           <Foot />
@@ -21,23 +26,36 @@
 </template>
 
 <script>
+import { mapState } from 'vuex'
 import Head from '@/components/head'
 import Side from '@/components/side'
 import Foot from '@/components/foot'
-import Tabs from '@/components/tabs'
+
 export default {
   data () {
     return {}
   },
+  computed: {
+    asideWidth () {
+      return this.isCollapse ? '65px' : '250px'
+    },
+    ...mapState(['isCollapse'])
+  },
   components: {
     Head,
     Side,
-    Foot,
-    Tabs
+    Foot
   }
 }
 </script>
 
 <style lang="scss">
-  @import './scss/main';
+@import './scss/main';
+@import './scss/var';
+.container {
+  min-width: $min-width;
+}
+.aside {
+  transition: all .3s;
+}
 </style>

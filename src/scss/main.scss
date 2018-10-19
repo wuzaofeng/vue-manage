@@ -11,6 +11,11 @@ body,
   background-color: $grounding-color;
 }
 
+* {
+  padding: 0;
+  margin: 0;
+}
+
 .header {
   padding: 0;
 }
@@ -25,4 +30,58 @@ body,
 
 a {
   text-decoration: none;
+}
+
+.main-wrap {
+  position: relative;
+  margin: 20px 20px 0;
+  padding: 0;
+}
+
+.main {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow-y: auto;
+}
+
+.markdown-text p {
+  white-space:pre-wrap;
+  word-wrap:break-word;
+  line-height:2em;
+  margin:1em 0
+}
+.markdown-text>:last-child {
+  margin-bottom:1em
+}
+.markdown-text>:first-child {
+  margin-top:0
+}
+.markdown-text li {
+  font-size:14px;
+  line-height:2em
+}
+.markdown-text li code,
+.markdown-text p code {
+  color:#000;
+  background-color:#fcfafa;
+  padding:4px 6px
+}
+.markdown-text img {
+  cursor:pointer;
+  width: 100%;
+}
+.markdown-text h1 code,
+.markdown-text h2 code,
+.markdown-text h3 code,
+.markdown-text h4 code,
+.markdown-text h5 code,
+.markdown-text h6 code{
+  font-size:inherit;
+  color:inherit
+}
+.markdown-text a{
+  color:#08c
 }

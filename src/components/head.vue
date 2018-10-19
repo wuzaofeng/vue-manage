@@ -5,34 +5,76 @@
     mode="horizontal"
     @select="handleSelect"
     >
-      <el-menu-item index="1">
+      <el-menu-item index="collapse">
         <svg class="icon">
-          <use xlink:href="#icon-contracts"></use>
+          <use :xlink:href="isCollapse ? '#icon-spread' : '#icon-contracts'"></use>
         </svg>
       </el-menu-item>
-      <el-menu-item index="2" disabled>消息中心</el-menu-item>
-      <el-menu-item index="3"><a href="https://www.ele.me" target="_blank">订单管理</a></el-menu-item>
+      <el-menu-item index="2"><a class="link" href="https://cn.vuejs.org/" target="_blank">Vue</a></el-menu-item>
+      <el-menu-item index="3"><a class="link" href="https://vuex.vuejs.org/zh/guide/" target="_blank">VueX</a></el-menu-item>
+      <el-menu-item index="4"><a class="link" href="https://router.vuejs.org/zh/" target="_blank">vue-router</a></el-menu-item>
+      <el-menu-item index="5"><a class="link" href="http://element-cn.eleme.io/#/zh-CN" target="_blank">element UI</a></el-menu-item>
+       <el-menu-item index="8"><a class="link" href="https://cnodejs.org/api" target="_blank">Cnode</a></el-menu-item>
     </el-menu>
     <el-menu :default-active="activeIndex" mode="horizontal" @select="handleSelect">
-      <el-menu-item index="4">消息中心</el-menu-item>
-      <el-menu-item index="5"><a href="https://www.ele.me" target="_blank">订单管理</a></el-menu-item>
+      <el-submenu index="language">
+        <template slot="title">{{activeLanguage.text}}</template>
+        <el-menu-item
+          v-for="item in language"
+          :key="item.key"
+          :index="item.key"
+        >{{item.text}}
+        </el-menu-item>
+      </el-submenu>
+      <el-menu-item index="7">
+        <el-color-picker v-model="defaultColor"></el-color-picker>
+      </el-menu-item>
     </el-menu>
   </div>
 </template>
 
 <script>
+import { mapState, mapMutations } from 'vuex'
+import { TOOGLE_NAV } from './../store/mutations-types'
 export default {
   name: 'Head',
   data () {
     return {
       activeIndex: '1',
-      msg: 'Welcome to Your Vue.js App'
+      defaultColor: '#409EFF',
+      activeLanguage: {
+        text: '中文',
+        key: '6-1'
+      },
+      language: [{
+        text: '中文',
+        key: '6-1'
+      }, {
+        text: 'English',
+        key: '6-2'
+      }]
     }
+  },
+  computed: {
+    ...mapState(['isCollapse'])
   },
   methods: {
     handleSelect (key, keyPath) {
-      console.log(key, keyPath)
-    }
+      // 标识6 语言
+      if (keyPath[0] === '6') {
+        const activeLanguage = this.language.find(e => {
+          if (e.key === keyPath[1]) {
+            return e.text
+          }
+        })
+        this.activeLanguage = activeLanguage
+      }
+
+      if (keyPath[0] === 'collapse') {
+        this[TOOGLE_NAV]()
+      }
+    },
+    ...mapMutations([ TOOGLE_NAV ])
   }
 }
 </script>
@@ -68,4 +110,9 @@ export default {
   }
 }
 
+.link {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
 </style>

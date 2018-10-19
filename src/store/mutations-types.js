@@ -1,3 +1,4 @@
-export const ADD_TABS = 'ADD_TABS' // 添加tabs标签
-export const DELETE_TABS = 'DELETE_TABS' // 删除tabs标签
-export const SET_CURRENTTAB = 'SET_CURRENTTAB' // 设置当前标签
+export const TOOGLE_NAV = 'TOOGLE_NAV' // 收缩标签
+
+export const CNODE_LOGIN = 'CNODE_LOGIN' // 登录cnode
+export const CNODE_EXIT = 'CNODE_EXIT' // 退出cnode
