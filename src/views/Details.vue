@@ -311,9 +311,8 @@ export default {
   }
   .button-wrap {
     position: absolute;
-    top: 50%;
+    top: 30px;
     right: 0;
-    transform: translate(0, -50%)
   }
 }
 .replie-info {
