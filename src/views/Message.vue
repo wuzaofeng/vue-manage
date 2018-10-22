@@ -1,28 +1,20 @@
 <template>
-  <div class="info-wrapper" v-loading="loading">
-    <div class="user">
-      <img v-lazy="avatarurl" :alt="loginname">
-      <div class="text">
-        <span>{{loginname}}</span>
-        <span>github {{githubUsername}}</span>
-        <span>{{score}} 积分</span>
-        <span>注册于 {{creatTime}}</span>
-      </div>
-    </div>
+  <div class="message-wrapper" v-loading="loading">
     <div style="margin-bottom: 20px">
       <el-card class="box-card" :body-style="{ maxHeight: '390px', overflow: 'auto' }">
         <div slot="header" class="clearfix">
-          <span>最近创建的主题</span>
+          <span>最近未读消息</span>
+          <el-button style="float: right; padding: 3px 0" type="text" @class="allUps()">全部标记已读</el-button>
         </div>
         <div class="text item">
           <div class="table-wrap">
             <el-table
               class="table"
-              :data="topics"
+              :data="hasnotread"
               border
             >
               <el-table-column
-                label="作者"
+                label="回复者"
                 width="180">
                 <template slot-scope="scope">
                   <div class="box">
@@ -37,13 +29,9 @@
                 prop="title"
                 label="标题">
                 <template slot-scope="scope">
-                  <router-link :to="{name: 'Cnode-Details', params: { id: scope.row.id }}">
+                  <router-link :to="{name: 'Cnode-Details', params: { id: scope.row.topic.id }}">
                     <div :title="scope.row.title" class="title">
-                      <span v-if="scope.row.top" class="put_top">置顶</span>
-                      <span v-else class="topiclist_tab">
-                        {{scope.row.tab | tab}}
-                      </span>
-                      {{scope.row.title}}
+                      {{scope.row.topic.title}}
                     </div>
                   </router-link>
                 </template>
@@ -54,7 +42,7 @@
                 >
                 <template slot-scope="scope">
                   <i class="el-icon-time"></i>
-                  <span>{{ scope.row.last_reply_at | last_reply }}</span>
+                  <span>{{ scope.row.topic.last_reply_at | last_reply }}</span>
                 </template>
               </el-table-column>
               <el-table-column
@@ -66,70 +54,11 @@
                     size="mini"
                     plain
                     @click="handleDetails(scope.$index, scope.row)">查看详情</el-button>
-                </template>
-              </el-table-column>
-            </el-table>
-          </div>
-        </div>
-      </el-card>
-    </div>
-    <div style="margin-bottom: 20px">
-      <el-card class="box-card" :body-style="{ maxHeight: '390px', overflow: 'auto' }">
-        <div slot="header" class="clearfix">
-          <span>最近收藏的主题</span>
-        </div>
-        <div class="text item">
-          <div class="table-wrap">
-            <el-table
-              class="table"
-              :data="collects"
-              border
-            >
-              <el-table-column
-                label="作者"
-                width="180">
-                <template slot-scope="scope">
-                  <div class="box">
-                    <img class="img" :src="scope.row.author.avatar_url" :alt="scope.row.author.loginname">
-                    <div class="info">
-                      <p class="username">{{scope.row.author.loginname}}</p>
-                    </div>
-                  </div>
-                </template>
-              </el-table-column>
-              <el-table-column
-                prop="title"
-                label="标题">
-                <template slot-scope="scope">
-                  <router-link :to="{name: 'Cnode-Details', params: { id: scope.row.id }}">
-                    <div :title="scope.row.title" class="title">
-                      <span v-if="scope.row.top" class="put_top">置顶</span>
-                      <span v-else class="topiclist_tab">
-                        {{scope.row.tab | tab}}
-                      </span>
-                      {{scope.row.title}}
-                    </div>
-                  </router-link>
-                </template>
-              </el-table-column>
-              <el-table-column
-                label="回复时间"
-                width="200"
-                >
-                <template slot-scope="scope">
-                  <i class="el-icon-time"></i>
-                  <span>{{ scope.row.last_reply_at | last_reply }}</span>
-                </template>
-              </el-table-column>
-              <el-table-column
-                fixed="right"
-                label="操作"
-                width="200">
-                <template slot-scope="scope">
                   <el-button
                     size="mini"
                     plain
-                    @click="handleDetails(scope.$index, scope.row)">查看详情</el-button>
+                    v-if="!scope.row.has_read"
+                    @click="handleRead(scope.$index, scope.row)">设置已读</el-button>
                 </template>
               </el-table-column>
             </el-table>
@@ -139,17 +68,17 @@
     </div>
     <el-card class="box-card" :body-style="{ maxHeight: '390px', overflow: 'auto' }">
       <div slot="header" class="clearfix">
-        <span>最近参与的主题</span>
+        <span>最近已读消息</span>
       </div>
       <div class="text item">
         <div class="table-wrap">
           <el-table
             class="table"
-            :data="replies"
+            :data="hasread"
             border
           >
             <el-table-column
-              label="作者"
+              label="回复者"
               width="180">
               <template slot-scope="scope">
                 <div class="box">
@@ -164,13 +93,9 @@
               prop="title"
               label="标题">
               <template slot-scope="scope">
-                <router-link :to="{name: 'Cnode-Details', params: { id: scope.row.id }}">
+                <router-link :to="{name: 'Cnode-Details', params: { id: scope.row.topic.id }}">
                   <div :title="scope.row.title" class="title">
-                    <span v-if="scope.row.top" class="put_top">置顶</span>
-                    <span v-else class="topiclist_tab">
-                      {{scope.row.tab | tab}}
-                    </span>
-                    {{scope.row.title}}
+                    {{scope.row.topic.title}}
                   </div>
                 </router-link>
               </template>
@@ -181,7 +106,7 @@
               >
               <template slot-scope="scope">
                 <i class="el-icon-time"></i>
-                <span>{{ scope.row.last_reply_at | last_reply }}</span>
+                <span>{{ scope.row.topic.last_reply_at | last_reply }}</span>
               </template>
             </el-table-column>
             <el-table-column
@@ -218,7 +143,7 @@ export default {
     creatTime () {
       return formatMsgTime(this.createat)
     },
-    ...mapState(['cnode_loginname'])
+    ...mapState({ token: 'cnode_accessToken' })
   },
   filters: {
     create_at (value) {
@@ -233,52 +158,48 @@ export default {
       return tab ? tab.label : 'cnode'
     }
   },
-  watch: {
-    $route () {
-      this.getUserInfo()
-    }
-  },
   data () {
     return {
       loading: true,
-      createat: '',
-      avatarurl: '',
-      githubUsername: '',
-      loginname: '',
-      replies: [],
-      topics: [],
-      score: 0,
-      collects: []
+      hasread: [],
+      hasnotread: []
     }
   },
   mounted () {
-    this.getUserInfo()
-    this.getCollects()
+    this.getMessage()
   },
   methods: {
-    getUserInfo () {
-      const { username } = this.$route.params
-      CNodeApi.userInfo(username).then((res) => {
-        const { avatar_url: avatarurl, create_at: createat, githubUsername, loginname, recent_replies: replies, recent_topics: topics, score } = res.data
-        this.avatarurl = avatarurl
-        this.createat = createat
-        this.githubUsername = githubUsername
-        this.loginname = loginname
-        this.replies = replies
-        this.topics = topics
-        this.score = score
+    getMessage () {
+      const params = {
+        accesstoken: this.token,
+        mdrender: false
+      }
+      CNodeApi.message(params).then((res) => {
+        const { has_read_messages: hasread, hasnot_read_messages: hasnotread } = res.data
+        this.hasread = hasread
+        this.hasnotread = hasnotread
         this.loading = false
       })
     },
-    getCollects () {
-      const { username } = this.$route.params
-      CNodeApi.getCollects(username).then((res) => {
-        this.collects = res.data
+    handleDetails (index, row) {
+      const { id } = row.topic
+      this.$router.push({name: 'Cnode-Details', params: { id }})
+    },
+    allUps () {
+      const data = {
+        accesstoken: this.token,
+      }
+      CNodeApi.markAll(data).then((res) => {
+        this.$message('标记全部已读')
       })
     },
-    handleDetails (index, row) {
-      const { id } = row
-      this.$router.push({name: 'Cnode-Details', params: { id }})
+    handleRead (id) {
+      const data = {
+        accesstoken: this.token,
+      }
+      CNodeApi.markOne({id, data}).then((res) => {
+        this.$message('标记已读')
+      })
     }
   }
 }
@@ -286,7 +207,7 @@ export default {
 
 <style lang="scss" scoped>
 @import '../scss/var';
-.info-wrapper {
+.message-wrapper {
   height: 100%;
   background: $white;
   border-radius: 5px;
@@ -294,29 +215,7 @@ export default {
   padding: 22px;
   box-sizing: border-box;
 }
-.user {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  margin-bottom: 20px;
-  height: 150px;
 
-  img {
-    border-radius: 50%;
-    margin-bottom: 5px;
-    width: 120px;
-    height: 120px;
-  }
-
-  span {
-    font-size: 12px;
-    color: $color-minior;
-  }
-  span::before {
-    content: "\2022";
-  }
-}
 .table-wrap {
   flex: 1;
 }

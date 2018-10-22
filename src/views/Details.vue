@@ -20,8 +20,9 @@
           </div>
         </div>
         <div class="button" v-if="token">
+          <el-button v-if="isAuthor" type="warning" plain @click="handleEdit()">编辑主题</el-button>
           <el-button v-if="!isCollect" type="primary" plain @click="collect()">收藏主题</el-button>
-           <el-button v-if="isCollect" plain @click="delCollect()">取消收藏</el-button>
+          <el-button v-if="isCollect" plain @click="delCollect()">取消收藏</el-button>
         </div>
       </div>
     </div>
@@ -37,9 +38,28 @@
             <span class="time">{{ item.create_at | filterReplieTime }}</span>
           </div>
           <div class="replie-info" v-html="item.content" />
+          <div class="button-wrap" v-if="token">
+            <el-button size="small" v-if="item.author.loginname !== loginname" @click="handleUp(item.id)">{{item.is_uped ? '取消点赞' : '我要点赞'}}</el-button>
+            <el-button size="small" @click="handleDialog(item.id, item.author.loginname)">评论</el-button>
+          </div>
         </li>
       </ul>
     </div>
+    <el-dialog
+      title="评论主题"
+      :visible.sync="dialogVisible"
+      width="60%"
+      center>
+      <quill-editor ref="editor"
+          v-model="replieContent"
+          @change="onEditorChange($event)"
+        >
+      </quill-editor>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="handleReplies()">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -75,7 +95,11 @@ export default {
       lastreply: '',
       loading: true,
       isCollect: false,
-      id: ''
+      id: '',
+      isAuthor: false,
+      dialogVisible: false,
+      replieContent: '',
+      replieParams: {}
     }
   },
   computed: {
@@ -91,7 +115,8 @@ export default {
       return `${time.getFullYear()}年${time.getMonth()}月${time.getDate()}日`
     },
     ...mapState({
-      token: 'cnode_accessToken'
+      token: 'cnode_accessToken',
+      loginname: 'cnode_loginname'
     })
   },
   mounted () {
@@ -99,7 +124,7 @@ export default {
   },
   methods: {
     getDetails () {
-      const { id } = this.$route.query
+      const { id } = this.$route.params
       const data = {
         mdrender: true,
         accesstoken: this.token
@@ -124,17 +149,65 @@ export default {
         this.loading = false
         this.isCollect = isCollect
         this.id = id
+
+        if (this.loginname === author.loginname && tab !== 'dev') {
+          this.isAuthor = true
+        }
       })
     },
     collect () {
       this.cnodeCollectAsync(this.id).then((res) => {
         this.isCollect = true
+        this.$message({
+          message: '收藏成功',
+          type: 'success'
+        })
       })
     },
     delCollect () {
       this.cnodeDelCollectAsync(this.id).then((res) => {
         this.isCollect = false
+        this.$message('取消收藏')
       })
+    },
+    handleEdit () {
+      const { id } = this.$route.params
+      this.$router.push({name: 'Cnode-Add', params: { id }})
+    },
+    handleUp (id) {
+      const data = {
+        accesstoken: this.token
+      }
+      CNodeApi.reply({id, data}).then((res) => {
+        this.getDetails()
+      })
+    },
+    handleDialog (id, name) {
+      this.replieContent = `@${name}` 
+      const data = {
+        accesstoken: this.token,
+        reply_id: id,
+        content: this.replieContent,
+      }
+      this.replieParams = data
+      this.dialogVisible = true
+    },
+    handleReplies () {
+      const data = {
+        ...this.replieParams,
+        content: this.replieContent,
+      }
+      CNodeApi.replies({id: this.id, data }).then((res) => {
+        this.$message({
+          type: 'success',
+          message: '评论成功',
+        })
+        this.dialogVisible = false
+        this.getDetails()
+      })
+    },
+    onEditorChange ({ editor, html, text }) {
+      this.replieContent = html
     },
     ...mapActions(['cnodeCollectAsync', 'cnodeDelCollectAsync'])
   }
@@ -170,9 +243,6 @@ export default {
   }
   .title-wrap {
     flex: 1;
-  }
-  .button {
-
   }
 }
 .title {
@@ -215,10 +285,11 @@ export default {
 }
 
 .replies-content {
-  li {
+  .item {
+    position: relative;
     list-style: none;
+    padding-right: 20%;
   }
-
   .replier {
     font-size: 14px;
     color: $color-minior;
@@ -237,6 +308,12 @@ export default {
       content: "•";
       margin-right: 5px;
     }
+  }
+  .button-wrap {
+    position: absolute;
+    top: 50%;
+    right: 0;
+    transform: translate(0, -50%)
   }
 }
 .replie-info {

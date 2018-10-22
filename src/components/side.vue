@@ -32,7 +32,11 @@
         </template>
         <el-menu-item-group>
           <el-menu-item class="item" index="cnode-login" v-if="!cnode_login">登录cnode</el-menu-item>
-          <!-- <el-menu-item class="item" index="cnode-info" v-if="cnode_login">我的信息</el-menu-item> -->
+          <el-menu-item class="item" index="cnode-info" v-if="cnode_login">
+            我的信息
+          </el-menu-item>
+          <el-menu-item class="item" index="cnode-message" v-if="cnode_login">
+            消息通知<i v-if="mark" class="badge">{{mark}}</i></el-menu-item>
           <el-menu-item class="item" index="cnode-list">主题列表</el-menu-item>
           <el-menu-item class="item" index="cnode-add"  v-if="cnode_login">新建主题</el-menu-item>
           <el-menu-item class="item" index="cnode-exit" v-if="cnode_login">退出登录</el-menu-item>
@@ -44,6 +48,7 @@
 
 <script>
 import { mapState, mapActions, mapMutations } from 'vuex'
+import CNodeApi from '@/server/cnode/cnode-api'
 import { CNODE_EXIT } from './../store/mutations-types'
 const ROUTERS = [{
   name: 'Home',
@@ -54,16 +59,20 @@ const ROUTERS = [{
 }, {
   name: 'Cnode-Add',
   index: 'cnode-add'
+}, {
+  name: 'Cnode-Message',
+  index: 'cnode-message'
 }]
 export default {
   name: 'Side',
   data () {
     return {
-      activeIndex: 'home'
+      activeIndex: 'home',
+      mark: 0
     }
   },
   computed: {
-    ...mapState(['isCollapse', 'cnode_login'])
+    ...mapState(['isCollapse', 'cnode_login', 'cnode_loginname', 'cnode_accessToken'])
   },
   methods: {
     handleSelect (index, indexPath) {
@@ -81,6 +90,9 @@ export default {
       }
       if (path === 'cnode-exit') {
         this[CNODE_EXIT]()
+      }
+      if (path === 'cnode-info') {
+        this.$router.push({name: 'Cnode-Info', params: {username: this.cnode_loginname}})
       }
     },
     loginCnode () {
@@ -107,12 +119,22 @@ export default {
           message: '登录成功',
           showClose: true
         })
+        this.getMark(accesstoken)
       }).catch(({data: {error_msg: err}}) => {
         this.$message({
           type: 'error',
           message: err,
           showClose: true
         })
+      })
+    },
+    getMark (accesstoken) {
+      const params = {
+        accesstoken
+      }
+      CNodeApi.getCount(params).then((res) => {
+        console.log(res)
+        this.mark = res.data
       })
     },
     ...mapActions([
@@ -171,5 +193,20 @@ export default {
 }
 .item {
   text-indent: 15px;
+}
+
+.badge {
+  background-color: #f56c6c;
+  border-radius: 10px;
+  color: #fff!important;
+  font-size: 12px;
+  height: 18px;
+  line-height: 18px;
+  padding: 0 6px;
+  white-space: nowrap;
+  text-align: left;
+  padding: 0 10px;
+  outline: none;
+  margin-left: 5px;
 }
 </style>

@@ -36,7 +36,8 @@ export default class CNodeApi {
   static updateTopics (data) {
     return Axios.fetch({
       url: `${CNodeApi.BASE_URL}/${TYPES.TOPICS}/update`,
-      data
+      data,
+      method: CNodeApi.METHOD.POST
     })
   }
 
@@ -71,6 +72,65 @@ export default class CNodeApi {
   static userInfo (loginname) {
     return Axios.fetch({
       url: `${CNodeApi.BASE_URL}/${TYPES.USER_INFO}/${loginname}`
+    })
+  }
+
+  // 用户收藏主题列表
+  static getCollects (loginname) {
+    return Axios.fetch({
+      url: `${CNodeApi.BASE_URL}/${TYPES.COLLECT_INFO}/${loginname}`
+    })
+  }
+
+  // 获取未读消息数
+  static getCount (params) {
+    return Axios.fetch({
+      url: `${CNodeApi.BASE_URL}/${TYPES.MESSAGE_COUNT}`,
+      params
+    })
+  }
+
+  // 获取已读和未读消息
+  static message (params) {
+    return Axios.fetch({
+      url: `${CNodeApi.BASE_URL}/${TYPES.MESSAGE_INFO}`,
+      params
+    })
+  }
+
+  // 为评论点赞
+  static reply ({ id, data }) {
+    return Axios.fetch({
+      url: `${CNodeApi.BASE_URL}/${TYPES.REPLY_UPS}/${id}/ups`,
+      data,
+      method: CNodeApi.METHOD.POST
+    })
+  }
+
+  // 标记全部已读
+  static markAll (data) {
+    return Axios.fetch({
+      url: `${CNodeApi.BASE_URL}/${TYPES.MESSAGE_MARK_ALL}`,
+      data,
+      method: CNodeApi.METHOD.POST
+    })
+  }
+
+  // 标记单个已读
+  static markOne ({ id, data }) {
+    return Axios.fetch({
+      url: `${CNodeApi.BASE_URL}/${TYPES.MESSAGE_MARK}/${id}`,
+      data,
+      method: CNodeApi.METHOD.POST
+    })
+  }
+
+  // 新建评论
+  static replies ({ id, data }) {
+    return Axios.fetch({
+      url: `${CNodeApi.BASE_URL}/${TYPES.TOPIC}/${id}/replies`,
+      data,
+      method: CNodeApi.METHOD.POST
     })
   }
 }

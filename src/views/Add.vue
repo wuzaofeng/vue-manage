@@ -3,7 +3,13 @@
     <el-form :model="ruleForm" :rules="rules" ref="cnodeAdd" label-width="100px">
       <el-form-item label="选择版块" prop="block">
         <el-select v-model="ruleForm.block" placeholder="请选择版块">
-          <el-option v-for="tab in tabs" :key="tab.value" :label="tab.label" :value="tab.value"></el-option>
+          <el-option
+            v-for="tab in tabs"
+            :key="tab.value"
+            :label="tab.label"
+            :value="tab.value"
+            v-if="isEdit ? tab.edit : true"
+          ></el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="板块标题" prop="title">
@@ -12,35 +18,30 @@
       <el-form-item label="内容编辑" prop="content">
         <quill-editor ref="editor"
           v-model="ruleForm.content"
+          @change="onEditorChange($event)"
         >
         </quill-editor>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="submitForm('cnodeAdd')">立即创建</el-button>
+        <el-button :type="!isEdit ? 'primary' : 'warning'" @click="submitForm('cnodeAdd')">
+          {{!isEdit ? '立即创建' : '立即编辑'}}
+        </el-button>
       </el-form-item>
     </el-form>
   </div>
 </template>
 
 <script>
-import 'quill/dist/quill.core.css'
-import 'quill/dist/quill.snow.css'
-import 'quill/dist/quill.bubble.css'
-
-import { quillEditor } from 'vue-quill-editor'
 import CNodeApi from '@/server/cnode/cnode-api'
 import { mapState } from 'vuex'
 const tabs = [
-  {value: 'ask', label: '分享'},
-  {value: 'share', label: '问答'},
-  {value: 'job', label: '招聘'},
-  {value: 'dev', label: '测试'}
+  {edit: true, value: 'ask', label: '问答'},
+  {edit: true, value: 'share', label: '分享'},
+  {edit: true, value: 'job', label: '招聘'},
+  {edit: false, value: 'dev', label: '测试'}
 ]
 export default {
   name: 'Add',
-  components: {
-    quillEditor
-  },
   computed: {
     editor () {
       return this.$refs.editor.quillEditor
@@ -48,6 +49,10 @@ export default {
     ...mapState({
       token: 'cnode_accessToken'
     })
+  },
+  mounted () {
+    const { id } = this.$route.params
+    id && this.getDetail(id)
   },
   data () {
     var validateContent = (rule, value, callback) => {
@@ -62,6 +67,7 @@ export default {
     return {
       loading: false,
       tabs,
+      isEdit: false,
       ruleForm: {
         block: '',
         title: '',
@@ -79,26 +85,72 @@ export default {
   },
   methods: {
     submitForm (formName) {
+      this.loading = true
       this.$refs[formName].validate((valid) => {
-        if (!valid) return false
+        if (!valid) {
+          this.loading = false
+          return false
+        }
         const data = {
           accesstoken: this.token,
           title: this.ruleForm.title,
           tab: this.ruleForm.block,
           content: this.ruleForm.content
         }
-        CNodeApi.addTopics(data).then((res) => {
-          if (res.success) {
-            this.$message({
-              showClose: true,
-              message: '新建成功'
-            })
-          }
-        })
+        if (!this.isEdit) {
+          CNodeApi.addTopics(data).then((res) => {
+            if (res.success) {
+              this.$message({
+                showClose: true,
+                message: '新建成功'
+              })
+              this.loading = false
+            }
+          })
+        } else {
+          this.updateTopics(data)
+        }
       })
     },
     onEditorChange ({ editor, html, text }) {
       this.content = html
+    },
+    getDetail (id) {
+      this.isEdit = true
+      this.loading = true
+      const data = {
+        mdrender: true,
+        accesstoken: this.token
+      }
+      CNodeApi.getDetails({id, data}).then(res => {
+        const { title, tab, content } = res.data
+        this.ruleForm.title = title
+        this.ruleForm.block = tab
+        this.ruleForm.content = content
+        this.loading = false
+      })
+    },
+    updateTopics (params) {
+      const data = {
+        ...params,
+        topic_id: this.$route.params.id
+      }
+      CNodeApi.updateTopics(data).then((res) => {
+        if (res.success) {
+          this.$message({
+            showClose: true,
+            message: '编辑成功',
+            type: 'success'
+          })
+        } else {
+          this.$message({
+            showClose: true,
+            message: res.error_msg,
+            type: 'danger'
+          })
+        }
+        this.loading = false
+      })
     }
   }
 }

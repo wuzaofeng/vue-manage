@@ -167,7 +167,7 @@ export default {
     },
     handleDetails (index, row) {
       const { id } = row
-      this.$router.push({name: 'Cnode-Details', query: { id }})
+      this.$router.push({name: 'Cnode-Details', params: { id }})
     },
     getTopics () {
       const { search: { tabValue, limitValue }, page } = this

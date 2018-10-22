@@ -11,9 +11,9 @@
         <el-main class="main-wrap">
           <div class="main">
             <router-view
-              keep-alive
               transition="fade"
-              transition-mode='out-in'
+              transition-mode="out-in"
+              :exclude="/Cnode-Info/"
             />
           </div>
         </el-main>

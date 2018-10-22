@@ -5,6 +5,7 @@ import Cnode from '@/views/Cnode'
 import CnodeDetails from '@/views/Details'
 import CnodeAdd from '@/views/Add'
 import CnodeInfo from '@/views/Info'
+import CnodeMessage from '@/views/Message'
 Vue.use(Router)
 
 export default new Router({
@@ -25,7 +26,7 @@ export default new Router({
       component: Cnode
     },
     {
-      path: '/cnode-details',
+      path: '/cnode-details/:id',
       name: 'Cnode-Details',
       component: CnodeDetails
     },
@@ -38,6 +39,11 @@ export default new Router({
       path: '/cnode-info/:username',
       name: 'Cnode-Info',
       component: CnodeInfo
+    },
+    {
+      path: '/cnode-message',
+      name: 'Cnode-Message',
+      component: CnodeMessage
     }
   ]
 })
