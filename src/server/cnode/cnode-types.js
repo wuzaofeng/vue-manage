@@ -20,4 +20,4 @@ export const ACCESS_TOKEN = 'accesstoken' // 验证 accessToken 的正确性
 export const MESSAGE_COUNT = 'message/count' // 获取未读消息数
 export const MESSAGE_INFO = 'messages' // 获取已读和未读消息
 export const MESSAGE_MARK_ALL = 'message/mark_all' // 获取已读和未读消息
-export const MESSAGE_MARK = 'message/mark_one/' // 标记单个消息为已读
+export const MESSAGE_MARK = 'message/mark_one' // 标记单个消息为已读

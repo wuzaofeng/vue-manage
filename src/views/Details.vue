@@ -183,11 +183,11 @@ export default {
       })
     },
     handleDialog (id, name) {
-      this.replieContent = `@${name}` 
+      this.replieContent = `@${name}`
       const data = {
         accesstoken: this.token,
         reply_id: id,
-        content: this.replieContent,
+        content: this.replieContent
       }
       this.replieParams = data
       this.dialogVisible = true
@@ -195,12 +195,12 @@ export default {
     handleReplies () {
       const data = {
         ...this.replieParams,
-        content: this.replieContent,
+        content: this.replieContent
       }
-      CNodeApi.replies({id: this.id, data }).then((res) => {
+      CNodeApi.replies({ id: this.id, data }).then((res) => {
         this.$message({
           type: 'success',
-          message: '评论成功',
+          message: '评论成功'
         })
         this.dialogVisible = false
         this.getDetails()

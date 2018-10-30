@@ -6,6 +6,8 @@ import CnodeDetails from '@/views/Details'
 import CnodeAdd from '@/views/Add'
 import CnodeInfo from '@/views/Info'
 import CnodeMessage from '@/views/Message'
+import Websocket from '@/views/Websocket'
+import Tetris from '@/views/Tetris'
 Vue.use(Router)
 
 export default new Router({
@@ -44,6 +46,16 @@ export default new Router({
       path: '/cnode-message',
       name: 'Cnode-Message',
       component: CnodeMessage
+    },
+    {
+      path: '/websocket',
+      name: 'Websocket',
+      component: Websocket
+    },
+    {
+      path: '/Tetris',
+      name: 'Tetris',
+      component: Tetris
     }
   ]
 })

@@ -1,7 +1,8 @@
 import CNodeApi from '@/server/cnode/cnode-api'
 import {
   CNODE_LOGIN,
-  CNODE_LOGINNAME
+  CNODE_LOGINNAME,
+  CNODE_SET_MARK
 } from './mutations-types'
 
 export default {
@@ -40,6 +41,17 @@ export default {
       }).then(res => {
         const { success } = res
         if (success) resolve(res)
+      })
+    })
+  },
+  cnodeGetMarkAsync ({commit, state}) {
+    const { cnode_accessToken: token } = state
+    return new Promise((resolve, reject) => {
+      CNodeApi.getCount({
+        accesstoken: token
+      }).then(res => {
+        const { success } = res
+        if (success) commit(CNODE_SET_MARK, res.data)
       })
     })
   }

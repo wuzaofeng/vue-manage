@@ -10,7 +10,8 @@ const state = {
   isCollapse: false, // 是否折叠
   cnode_login: false, // 是否登录cnode
   cnode_accessToken: '',
-  cnode_loginname: ''
+  cnode_loginname: '',
+  cnode_mark: 0
   // cnode_id: '',
   // cnode_avatar_url: ''// 头像地址
 }

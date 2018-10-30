@@ -42,13 +42,24 @@
           <el-menu-item class="item" index="cnode-exit" v-if="cnode_login">退出登录</el-menu-item>
         </el-menu-item-group>
       </el-submenu>
+      <el-menu-item index="websocket">
+        <svg class="icon">
+          <use xlink:href="#icon-home"></use>
+        </svg>
+        <span slot="title">websocket</span>
+      </el-menu-item>
+      <el-menu-item index="teris">
+        <svg class="icon">
+          <use xlink:href="#icon-home"></use>
+        </svg>
+        <span slot="title">teris</span>
+      </el-menu-item>
     </el-menu>
   </div>
 </template>
 
 <script>
 import { mapState, mapActions, mapMutations } from 'vuex'
-import CNodeApi from '@/server/cnode/cnode-api'
 import { CNODE_EXIT } from './../store/mutations-types'
 const ROUTERS = [{
   name: 'Home',
@@ -62,6 +73,12 @@ const ROUTERS = [{
 }, {
   name: 'Cnode-Message',
   index: 'cnode-message'
+}, {
+  name: 'Websocket',
+  index: 'websocket'
+}, {
+  name: 'Tetris',
+  index: 'teris'
 }]
 export default {
   name: 'Side',
@@ -128,17 +145,12 @@ export default {
         })
       })
     },
-    getMark (accesstoken) {
-      const params = {
-        accesstoken
-      }
-      CNodeApi.getCount(params).then((res) => {
-        console.log(res)
-        this.mark = res.data
-      })
+    getMark () {
+      this.cnodeGetMarkAsync()
     },
     ...mapActions([
-      'cnodeLoginAsync'
+      'cnodeLoginAsync',
+      'cnodeGetMarkAsync'
     ]),
     ...mapMutations([
       CNODE_EXIT

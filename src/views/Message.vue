@@ -4,7 +4,7 @@
       <el-card class="box-card" :body-style="{ maxHeight: '390px', overflow: 'auto' }">
         <div slot="header" class="clearfix">
           <span>最近未读消息</span>
-          <el-button style="float: right; padding: 3px 0" type="text" @class="allUps()">全部标记已读</el-button>
+          <el-button style="float: right; padding: 3px 0" type="text" @click="allUps()">全部标记已读</el-button>
         </div>
         <div class="text item">
           <div class="table-wrap">
@@ -58,7 +58,7 @@
                     size="mini"
                     plain
                     v-if="!scope.row.has_read"
-                    @click="handleRead(scope.$index, scope.row)">设置已读</el-button>
+                    @click="handleRead(scope.row.id)">设置已读</el-button>
                 </template>
               </el-table-column>
             </el-table>
@@ -130,7 +130,7 @@
 <script>
 import CNodeApi from '@/server/cnode/cnode-api'
 import { formatMsgTime } from '@/assets/js/common'
-import { mapState } from 'vuex'
+import { mapState, mapActions } from 'vuex'
 const tabs = [
   {value: 'ask', label: '问答'},
   {value: 'share', label: '分享'},
@@ -187,20 +187,27 @@ export default {
     },
     allUps () {
       const data = {
-        accesstoken: this.token,
+        accesstoken: this.token
       }
       CNodeApi.markAll(data).then((res) => {
         this.$message('标记全部已读')
+        this.getMessage()
+        this.cnodeGetMarkAsync()
       })
     },
     handleRead (id) {
       const data = {
-        accesstoken: this.token,
+        accesstoken: this.token
       }
       CNodeApi.markOne({id, data}).then((res) => {
         this.$message('标记已读')
+        this.getMessage()
+        this.cnodeGetMarkAsync()
       })
-    }
+    },
+    ...mapActions([
+      'cnodeGetMarkAsync'
+    ])
   }
 }
 </script>

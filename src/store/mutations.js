@@ -2,7 +2,8 @@ import {
   TOOGLE_NAV,
   CNODE_LOGIN,
   CNODE_LOGINNAME,
-  CNODE_EXIT
+  CNODE_EXIT,
+  CNODE_SET_MARK
 } from './mutations-types'
 
 export default {
@@ -19,5 +20,8 @@ export default {
   },
   [CNODE_EXIT] (state) {
     state.cnode_login = false
+  },
+  [CNODE_SET_MARK] (state, mark) {
+    state.cnode_mark = mark
   }
 }
